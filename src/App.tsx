@@ -19,50 +19,42 @@ export const App: React.FC = () => {
   );
   const [searchByName, setSearchByName] = useState<string>('');
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [todosData, setTodosData] = useState<Todo[]>([]);
 
   useEffect(() => {
     setIsTodosLoading(true);
     getTodos().then(todos => {
       // eslint-disable-next-line no-console
-      console.log(todos);
+      setTodosData(todos);
       setTodoList(todos);
       setIsTodosLoading(false);
     });
   }, []);
 
   useEffect(() => {
-    setIsTodosLoading(true);
-    getTodos()
-      .then(todos => {
-        if (filterByStatus === TodoStatus.ALL) {
-          return todos;
-        }
+    let filteredTodos = [...todosData];
 
-        return todos.filter(todo => {
-          switch (filterByStatus) {
-            case TodoStatus.ACTIVE:
-              return todo.completed === false;
-            case TodoStatus.COMPLETED:
-              return todo.completed === true;
-          }
-        });
-      })
-      .then(todos => {
-        if (searchByName.length === 0) {
-          return todos;
+    if (filterByStatus !== TodoStatus.ALL) {
+      filteredTodos = filteredTodos.filter(todo => {
+        switch (filterByStatus) {
+          case TodoStatus.ACTIVE:
+            return todo.completed === false;
+          case TodoStatus.COMPLETED:
+            return todo.completed === true;
+          default:
+            return true;
         }
-
-        return todos.filter(todo =>
-          todo.title.toLocaleLowerCase().includes(searchByName.toLowerCase()),
-        );
-      })
-      .then(todos => {
-        // eslint-disable-next-line no-console
-        console.log(todos);
-        setTodoList(todos);
-        setIsTodosLoading(false);
       });
-  }, [filterByStatus, searchByName]);
+    }
+
+    if (searchByName.length > 0) {
+      filteredTodos = filteredTodos.filter(todo =>
+        todo.title.toLocaleLowerCase().includes(searchByName.toLowerCase()),
+      );
+    }
+
+    setTodoList(filteredTodos);
+  }, [filterByStatus, searchByName, todosData]);
 
   return (
     <>
