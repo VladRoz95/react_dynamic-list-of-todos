@@ -32,7 +32,7 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let filteredTodos = [...todosData];
+    let filteredTodos = todosData;
 
     if (filterByStatus !== TodoStatus.ALL) {
       filteredTodos = filteredTodos.filter(todo => {
